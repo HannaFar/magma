@@ -268,6 +268,58 @@ describe('<AddEditGatewayButton />', () => {
       },
       networkId: 'test',
     });
+
+    // // verify if we transition to dynamic services tab
+    // expect(queryByTestId('configEdit')).toBeNull();
+    // expect(queryByTestId('dynamicServicesEdit')).not.toBeNull();
+    // expect(queryByTestId('epcEdit')).toBeNull();
+    // expect(queryByTestId('ranEdit')).toBeNull();
+    // expect(queryByTestId('apnResourcesEdit')).toBeNull();
+    // expect(queryByTestId('headerEnrichmentEdit')).toBeNull();
+
+    // fireEvent.click(getByText('Save And Continue'));
+    // await wait();
+
+    // // verify if we transition to epc tab
+    // expect(queryByTestId('configEdit')).toBeNull();
+    // expect(queryByTestId('dynamicServicesEdit')).toBeNull();
+    // expect(queryByTestId('epcEdit')).not.toBeNull();
+    // expect(queryByTestId('ranEdit')).toBeNull();
+    // expect(queryByTestId('apnResourcesEdit')).toBeNull();
+    // expect(queryByTestId('headerEnrichmentEdit')).toBeNull();
+
+    // fireEvent.click(getByText('Save And Continue'));
+    // await wait();
+
+    // // verify if we transition to ran tab
+    // expect(queryByTestId('configEdit')).toBeNull();
+    // expect(queryByTestId('dynamicServicesEdit')).toBeNull();
+    // expect(queryByTestId('epcEdit')).toBeNull();
+    // expect(queryByTestId('ranEdit')).not.toBeNull();
+    // expect(queryByTestId('apnResourcesEdit')).toBeNull();
+    // expect(queryByTestId('headerEnrichmentEdit')).toBeNull();
+
+    // fireEvent.click(getByText('Save And Continue'));
+    // await wait();
+
+    // // // verify if we transition to apn resources tab
+    // // expect(queryByTestId('configEdit')).toBeNull();
+    // // expect(queryByTestId('dynamicServicesEdit')).toBeNull();
+    // // expect(queryByTestId('epcEdit')).toBeNull();
+    // // expect(queryByTestId('ranEdit')).toBeNull();
+    // // expect(queryByTestId('apnResourcesEdit')).not.toBeNull();
+    // // expect(queryByTestId('headerEnrichmentEdit')).toBeNull();
+
+    // fireEvent.click(getByText('Save And Continue'));
+    // await wait();
+
+    // // verify if we transition to header enrichment tab
+    // expect(queryByTestId('configEdit')).toBeNull();
+    // expect(queryByTestId('dynamicServicesEdit')).toBeNull();
+    // expect(queryByTestId('epcEdit')).toBeNull();
+    // expect(queryByTestId('ranEdit')).toBeNull();
+    // expect(queryByTestId('apnResourcesEdit')).toBeNull();
+    // expect(queryByTestId('headerEnrichmentEdit')).not.toBeNull();
   });
 
   it('Verify Gateway Ran Edit', async () => {

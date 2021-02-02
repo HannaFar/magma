@@ -17,9 +17,11 @@ import type {
   apn_resources,
   challenge_key,
   enodeb_serials,
+  gateway_cellular_configs,
   gateway_device,
   gateway_dns_configs,
   gateway_epc_configs,
+  gateway_he_config,
   gateway_logging_configs,
   gateway_ran_configs,
   lte_gateway,
@@ -73,6 +75,7 @@ const RAN_TITLE = 'Ran';
 const AGGREGATION_TITLE = 'Aggregation';
 const EPC_TITLE = 'Epc';
 const APN_RESOURCES_TITLE = 'APN Resources';
+const HEADER_ENRICHMENT_TITLE = 'Header Enrichment';
 const DEFAULT_GATEWAY_CONFIG = {
   apn_resources: {},
   cellular: {
@@ -119,6 +122,19 @@ const DEFAULT_GATEWAY_CONFIG = {
   },
   tier: 'default',
 };
+const DEFAULT_DNS_CONFIG = {
+  enable_caching: false,
+  local_ttl: 0,
+  records: [],
+};
+const DEFAULT_HE_CONFIG = {
+  enable_encryption: false,
+  encryption_key: '',
+  enable_header_enrichment: false,
+  he_encoding_type: 'BASE64',
+  he_encryption_algorithm: 'RC4',
+  he_hash_function: 'MD5',
+};
 
 const useStyles = makeStyles(_ => ({
   appBarBtn: {
@@ -161,6 +177,7 @@ const EditTableType = {
   epc: 2,
   ran: 3,
   apnResources: 4,
+  headerEnrichment: 5,
 };
 
 type EditProps = {
@@ -270,6 +287,12 @@ function GatewayEditDialog(props: DialogProps) {
           disabled={editProps ? false : true}
           label={APN_RESOURCES_TITLE}
         />
+        <Tab
+          key="headerEnrichment"
+          data-testid="headerEnrichmentTab"
+          disabled={editProps ? false : true}
+          label={HEADER_ENRICHMENT_TITLE}
+        />
         ;
       </Tabs>
       {tabPos === 0 && (
@@ -342,6 +365,23 @@ function GatewayEditDialog(props: DialogProps) {
       )}
       {tabPos === 4 && (
         <ApnResourcesEdit
+          isAdd={!editProps}
+          gateway={
+            Object.keys(gateway).length != 0 ? gateway : ctx.state[gatewayId]
+          }
+          onClose={onClose}
+          onSave={(gateway: lte_gateway) => {
+            setGateway(gateway);
+            if (editProps) {
+              onClose();
+            } else {
+              setTabPos(tabPos + 1);
+            }
+          }}
+        />
+      )}
+      {tabPos === 5 && (
+        <HeaderEnrichmentConfig
           isAdd={!editProps}
           gateway={
             Object.keys(gateway).length != 0 ? gateway : ctx.state[gatewayId]
@@ -781,12 +821,6 @@ export function EPCEdit(props: Props) {
   );
 }
 
-const DEFAULT_DNS_CONFIG = {
-  enable_caching: false,
-  local_ttl: 0,
-  records: [],
-};
-
 export function RanEdit(props: Props) {
   const classes = useStyles();
   const enqueueSnackbar = useEnqueueSnackbar();
@@ -923,7 +957,7 @@ export function RanEdit(props: Props) {
           Cancel
         </Button>
         <Button onClick={onSave} variant="contained" color="primary">
-          {props.isAdd ? 'Save And Close' : 'Save'}
+          {props.isAdd ? 'Save And Continue' : 'Save'}
         </Button>
       </DialogActions>
     </>
@@ -982,7 +1016,7 @@ export function ApnResourcesEdit(props: Props) {
 
   return (
     <>
-      <DialogContent data-testid="ranEdit">
+      <DialogContent data-testid="apnResourcesEdit">
         <List>
           {error !== '' && (
             <AltFormField label={''}>
@@ -1080,6 +1114,180 @@ export function ApnResourcesEdit(props: Props) {
               </AccordionDetails>
             </Accordion>
           ))}
+        </List>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={props.onClose} skin="regular">
+          Cancel
+        </Button>
+        <Button onClick={onSave} variant="contained" color="primary">
+          {props.isAdd ? 'Save And Close' : 'Save'}
+        </Button>
+      </DialogActions>
+    </>
+  );
+}
+
+export function HeaderEnrichmentConfig(props: Props) {
+  const enqueueSnackbar = useEnqueueSnackbar();
+  const [error, setError] = useState('');
+  const ctx = useContext(GatewayContext);
+  const [heConfig, setHeConfig] = useState<gateway_he_config>(
+    props.gateway?.cellular.he_config || DEFAULT_HE_CONFIG,
+  );
+
+  const handleHEChange = (key: string, val) => {
+    setHeConfig({...heConfig, [key]: val});
+  };
+
+  const [
+    cellularConfig,
+    _setCellularConfig,
+  ] = useState<gateway_cellular_configs>(props.gateway?.cellular || {});
+  const heEncodingTypes = ['BASE64', 'HEX2BIN'];
+  const heEncryptionAlgorithmTypes = [
+    'RC4',
+    'AES256_CBC_HMAC_MD5',
+    'AES256_ECB_HMAC_MD5',
+    'GZIPPED_AES256_ECB_SHA1',
+  ];
+  const heHashFunctionTypes = ['MD5', 'HEX', 'SHA256'];
+
+  const onSave = async () => {
+    try {
+      const gateway = {
+        ...(props.gateway || DEFAULT_GATEWAY_CONFIG),
+        cellular: {
+          ...cellularConfig,
+          he_config: heConfig,
+        },
+      };
+      await ctx.updateGateway({
+        gatewayId: gateway.id,
+        cellularConfigs: {
+          ...cellularConfig,
+          he_config: heConfig.enable_header_enrichment ? heConfig : undefined,
+        },
+      });
+      enqueueSnackbar('Gateway saved successfully', {
+        variant: 'success',
+      });
+      props.onSave(gateway);
+    } catch (e) {
+      setError(e.response?.data?.message ?? e.message);
+    }
+  };
+
+  return (
+    <>
+      <DialogContent data-testid="headerEnrichmentEdit">
+        <List>
+          {error !== '' && (
+            <AltFormField label={''}>
+              <FormLabel error>{error}</FormLabel>
+            </AltFormField>
+          )}
+          <AltFormField label={'Enable Header Enrichment'}>
+            <Switch
+              data-testid="enableHE"
+              onChange={() =>
+                handleHEChange(
+                  'enable_header_enrichment',
+                  !(heConfig?.enable_header_enrichment ?? false),
+                )
+              }
+              checked={heConfig?.enable_header_enrichment ?? false}
+            />
+          </AltFormField>
+
+          <AltFormField label={'Enable Encryption'}>
+            <Switch
+              data-testid="enableEncryption"
+              disabled={!heConfig.enable_header_enrichment}
+              onChange={() =>
+                handleHEChange(
+                  'enable_encryption',
+                  !(heConfig?.enable_encryption ?? false),
+                )
+              }
+              checked={heConfig?.enable_encryption ?? false}
+            />
+          </AltFormField>
+
+          <AltFormField label={'Encryption Key'}>
+            <OutlinedInput
+              disabled={!heConfig.enable_header_enrichment}
+              data-testid="encryptionKey"
+              placeholder="Enter encryption_key"
+              type="string"
+              fullWidth={true}
+              value={
+                heConfig.encryption_key ?? DEFAULT_HE_CONFIG.encryption_key
+              }
+              onChange={({target}) =>
+                handleHEChange('encryption_key', target.value)
+              }
+            />
+          </AltFormField>
+
+          <AltFormField label={'Encoding Type'}>
+            <Select
+              disabled={!heConfig.enable_header_enrichment}
+              fullWidth={true}
+              variant={'outlined'}
+              value={
+                heConfig.he_encoding_type ?? DEFAULT_HE_CONFIG.he_encoding_type
+              }
+              onChange={({target}) => {
+                handleHEChange('he_encoding_type', target.value);
+              }}
+              input={<OutlinedInput id="encodingType" />}>
+              {heEncodingTypes.map(type => (
+                <MenuItem key={type} value={type}>
+                  <ListItemText primary={type} />
+                </MenuItem>
+              ))}
+            </Select>
+          </AltFormField>
+          <AltFormField label={'Encryption Algorithm'}>
+            <Select
+              disabled={!heConfig.enable_header_enrichment}
+              fullWidth={true}
+              variant={'outlined'}
+              value={
+                heConfig.he_encryption_algorithm ??
+                DEFAULT_HE_CONFIG.he_encoding_type
+              }
+              onChange={({target}) => {
+                handleHEChange('he_encryption_algorithm', target.value);
+              }}
+              input={<OutlinedInput id="encryptionAlgorithm" />}>
+              {heEncryptionAlgorithmTypes.map(type => (
+                <MenuItem key={type} value={type}>
+                  <ListItemText primary={type} />
+                </MenuItem>
+              ))}
+            </Select>
+          </AltFormField>
+          <AltFormField label={'Hash Function'}>
+            <Select
+              disabled={!heConfig.enable_header_enrichment}
+              fullWidth={true}
+              variant={'outlined'}
+              value={
+                heConfig.he_hash_function ?? DEFAULT_HE_CONFIG.he_encoding_type
+              }
+              onChange={({target}) => {
+                handleHEChange('he_hash_function', target.value);
+              }}
+              input={<OutlinedInput id="hashFunction" />}>
+              {heHashFunctionTypes.map(type => (
+                <MenuItem key={type} value={type}>
+                  <ListItemText primary={type} />
+                </MenuItem>
+              ))}
+            </Select>
+          </AltFormField>
         </List>
       </DialogContent>
       <DialogActions>

@@ -27,6 +27,7 @@ import LteNetworkContext from '../../components/context/LteNetworkContext';
 import PolicyAppEdit from './PolicyApp';
 import PolicyContext from '../../components/context/PolicyContext';
 import PolicyFlowsEdit from './PolicyFlows';
+import PolicyHeaderEnrichmentEdit from './PolicyHeaderEnrichment';
 import PolicyInfoEdit from './PolicyInfo';
 import PolicyRedirectEdit from './PolicyRedirect';
 import PolicyTrackingEdit from './PolicyTracking';
@@ -82,6 +83,7 @@ export default function PolicyRuleEditDialog(props: Props) {
       app_name: undefined,
       app_service_type: undefined,
       assigned_subscribers: undefined,
+      header_enrichment_targets: undefined,
     },
   );
 
@@ -98,6 +100,7 @@ export default function PolicyRuleEditDialog(props: Props) {
         app_name: undefined,
         app_service_type: undefined,
         assigned_subscribers: undefined,
+        header_enrichment_targets: undefined,
       },
     );
     setError('');
@@ -105,7 +108,13 @@ export default function PolicyRuleEditDialog(props: Props) {
     setIsNetworkWide(false);
   }, [props.open, props.rule]);
 
-  const tabList = ['Policy', 'Flows', 'Tracking', 'Redirect'];
+  const tabList = [
+    'Policy',
+    'Flows',
+    'Tracking',
+    'Redirect',
+    'Header Enrichment',
+  ];
   if (lteNetwork?.cellular?.epc?.network_services?.includes('dpi')) {
     tabList.push('App');
   }
@@ -195,7 +204,8 @@ export default function PolicyRuleEditDialog(props: Props) {
           {tabPos === 1 && <PolicyFlowsEdit {...editProps} />}
           {tabPos === 2 && <PolicyTrackingEdit {...editProps} />}
           {tabPos === 3 && <PolicyRedirectEdit {...editProps} />}
-          {tabPos === 4 && <PolicyAppEdit {...editProps} />}
+          {tabPos === 4 && <PolicyHeaderEnrichmentEdit {...editProps} />}
+          {tabPos === 5 && <PolicyAppEdit {...editProps} />}
         </List>
       </DialogContent>
       <DialogActions>
