@@ -48,6 +48,11 @@ export type GatewayPoolsContextType = {
     val?: mutable_cellular_gateway_pool,
     resources?: Array<GatewayPoolRecordsType>,
   ) => Promise<void>,
+  updateGatewayPoolResources: (
+    key: gateway_pool_id,
+    val?: mutable_cellular_gateway_pool,
+    resources?: Array<GatewayPoolRecordsType>,
+  ) => Promise<void>,
 };
 
 export default React.createContext<GatewayPoolsContextType>({});

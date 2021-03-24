@@ -339,6 +339,15 @@ export function GatewayPoolsContextProvider(props: Props) {
             value,
             resources,
           }),
+        updateGatewayPoolResources: (key, value?, resources?) =>
+          UpdateGatewayPoolResources({
+            gatewayPools,
+            setGatewayPools,
+            networkId,
+            key,
+            value,
+            resources,
+          }),
       }}>
       {props.children}
     </GatewayPoolsContext.Provider>
