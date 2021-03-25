@@ -574,6 +574,7 @@ type InitGatewayPoolStateType = {
 export async function InitGatewayPoolState(props: InitGatewayPoolStateType) {
   const {networkId, setGatewayPools, enqueueSnackbar} = props;
   const pools = await FetchGatewayPools({networkId: networkId});
+
   if (pools) {
     const poolGatewayState = {};
     Object.keys(pools).map(async poolId => {
