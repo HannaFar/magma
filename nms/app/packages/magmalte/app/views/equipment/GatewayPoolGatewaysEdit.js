@@ -49,22 +49,36 @@ export default function GatewayEdit(props: GatewayPoolEditProps) {
   const [error, setError] = useState('');
   const ctx = useContext(GatewayPoolsContext);
   const gwCtx = useContext(GatewayContext);
-  const [gwIds, _setGwIds] = useState(Object.keys(gwCtx.state));
   const [isPrimary, setIsPrimary] = useState(props.isPrimary || false);
   const [gwPool, setGwPool] = useState(props.gwPool);
   const [gateways, setGateways] = useState(
     isPrimary ? props.gatewayPrimary : props.gatewaySecondary,
   );
+  const gwIds = Object.keys(gwCtx.state);
 
+  // gateways already associated to gateway pools
+  const [gwPoolIds, setGwPoolIds] = useState(
+    Object.keys(ctx.state)
+      .map(poolId => {
+        return ctx.state[poolId].gatewayPoolRecords.map(
+          record => record.gateway_id,
+        );
+      })
+      .flat(),
+  );
   useEffect(() => {
     setGwPool(props.gwPool || DEFAULT_GW_POOL_CONFIG);
   }, [props.gwPool]);
 
-  const handleGwIdChange = (id: string, index: number) => {
+  const handleGwIdChange = (id: string, index: number, prevId: string) => {
     const newGwList = gateways;
     newGwList[index].gateway_id = id;
     props.onRecordChange?.([...newGwList]);
     setGateways([...newGwList]);
+    // update gw primary/secondary id list
+    const newGwPoolIds =
+      prevId !== '' ? gwPoolIds.filter(id => id !== prevId) : gwPoolIds;
+    setGwPoolIds([...newGwPoolIds, id]);
   };
 
   const handleGwChange = (index: number, value: number, key) => {
@@ -92,6 +106,9 @@ export default function GatewayEdit(props: GatewayPoolEditProps) {
       props.onRecordChange?.([...newGwList]);
       setGateways([...newGwList]);
     }
+    // update gw primary/secondary id list
+    const newIds = gwPoolIds.filter(id => id !== gatewayId);
+    setGwPoolIds([...newIds]);
   };
 
   useEffect(() => {
@@ -133,9 +150,9 @@ export default function GatewayEdit(props: GatewayPoolEditProps) {
                     variant={'outlined'}
                     displayEmpty={true}
                     value={gw.gateway_id}
-                    onChange={({target}) =>
-                      handleGwIdChange(target.value, index)
-                    }
+                    onChange={({target}) => {
+                      handleGwIdChange(target.value, index, gw.gateway_id);
+                    }}
                     input={
                       <OutlinedInput
                         data-testid={`gwId${
@@ -145,7 +162,12 @@ export default function GatewayEdit(props: GatewayPoolEditProps) {
                       />
                     }>
                     {gwIds.map(id => (
-                      <MenuItem key={id} value={id}>
+                      <MenuItem
+                        key={id}
+                        value={id}
+                        disabled={
+                          gwPoolIds.includes(id) && id !== gw.gateway_id
+                        }>
                         <ListItemText primary={id} />
                       </MenuItem>
                     ))}
