@@ -31,7 +31,7 @@ require (
 	github.com/facebookincubator/prometheus-edge-hub v1.1.0
 	github.com/go-openapi/errors v0.19.2
 	github.com/go-openapi/strfmt v0.19.4
-	github.com/go-openapi/swag v0.19.5
+	github.com/go-openapi/swag v0.19.15
 	github.com/go-openapi/validate v0.19.3
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-swagger/go-swagger v0.21.0
@@ -56,7 +56,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 	github.com/thoas/go-funk v0.7.0
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
@@ -64,7 +64,7 @@ require (
 	golang.org/x/tools v0.0.0-20191012152004-8de300cfc20a
 	google.golang.org/grpc v1.31.0
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
-	gopkg.in/yaml.v2 v2.2.8
+	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.0.0-20191016110408-35e52d86657a
 	k8s.io/apimachinery v0.0.0-20191004115801-a2eda9f80ab8
 	k8s.io/client-go v11.0.1-0.20190409021438-1a26190bd76a+incompatible
