@@ -13,11 +13,10 @@
  * @flow strict-local
  * @format
  */
-
+import AlertLinks from '../../data/AlertLinks';
 import MagmaV1API from '@fbcnms/magma-api/client/WebClient';
 import nullthrows from '@fbcnms/util/nullthrows';
 import useMagmaAPI from '@fbcnms/ui/magma/useMagmaAPI';
-
 import type {ApiUtil} from '@fbcnms/alarms/components/AlarmsApi';
 
 export const MagmaAlarmsApiUtil: ApiUtil = {
@@ -39,11 +38,14 @@ export const MagmaAlarmsApiUtil: ApiUtil = {
     console.warn('not implemented');
     return [];
   },
-  getTroubleshootingLink: async ({alertName: _}) =>
-    Promise.resolve({
-      link: '',
+
+  getTroubleshootingLink: async ({alertName}) => {
+    const links = AlertLinks[0];
+    return Promise.resolve({
+      link: links[alertName] ?? '',
       title: 'View Troubleshooting Documentation',
-    }),
+    });
+  },
   // Alert Rules
   createAlertRule: async ({networkId, rule}) => {
     await MagmaV1API.postNetworksByNetworkIdPrometheusAlertConfig({
